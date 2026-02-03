@@ -1,8 +1,8 @@
-import React, { useEffect, useState } from 'react'; // Removed unused useRef
+import React, { useEffect, useState, useRef } from 'react';
 import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
 import { fabric } from 'fabric';
 import axios from 'axios';
-import { Trash2, ZoomIn, ZoomOut, Download, Maximize, ChevronLeft, RefreshCw } from 'lucide-react'; // Removed unused icons
+import { Trash2, ZoomIn, ZoomOut, Download, Maximize, ChevronLeft, RefreshCw, Info, ShieldCheck, Mail } from 'lucide-react';
 import JSZip from 'jszip';
 import { saveAs } from 'file-saver';
 
@@ -20,12 +20,12 @@ const Editor = ({ canvas, previews, runDetection, resetZoom, handleZoomChange })
     <div style={styles.adBanner}><div style={styles.adPlaceholder}>AdSense Horizontal Banner Slot</div></div>
     <div style={styles.mainWorkArea}>
       <div style={styles.sidebar}>
-        {/* 1. TOP: Primary Action Button */}
+        {/* 1. NOW AT THE TOP: Auto-Detect Button */}
         <button onClick={() => runDetection()} style={styles.btnPrimary}>
           <RefreshCw size={14}/> Auto-Detect
         </button>
 
-        {/* 2. SECOND: Instructions Box */}
+        {/* 2. SECOND: How to Use Box */}
         <div style={{...styles.infoBox, marginTop: '10px', border: '1px solid #1e3a8a44'}}>
           <p style={{margin:0, fontSize:'11px', color:'#3b82f6', fontWeight:'bold'}}>🚀 How to Use</p>
           <div style={{marginTop:'5px', fontSize:'11px', color:'#aaa', lineHeight:'1.4'}}>
@@ -37,15 +37,15 @@ const Editor = ({ canvas, previews, runDetection, resetZoom, handleZoomChange })
           </div>
         </div>
         
-        {/* 3. FLEX SPACER: Pushes following items to bottom */}
+        {/* 3. FLEX SPACER: Pushes the Ads and Clear button to the bottom */}
         <div style={{ flex: 1 }}></div>
 
-        {/* 4. THIRD: Sidebar Ad Slot */}
+        {/* 4. THIRD: Ads Place */}
         <div style={styles.sidebarAd}>
           <div style={styles.adPlaceholderSmall}>AdSense Sidebar Slot</div>
         </div>
         
-        {/* 5. BOTTOM: Secondary Action Button */}
+        {/* 5. BOTTOM: Clear All Button */}
         <button onClick={() => { canvas.getObjects('rect').forEach(o => canvas.remove(o)); canvas.renderAll(); }} style={styles.btnSecondary}>
           <Trash2 size={14}/> Clear All
         </button>
@@ -67,13 +67,14 @@ function App() {
   const [zoom, setZoom] = useState(0.5);
   const [currentFile, setCurrentFile] = useState(null);
 
+  // Styling Constants
   const boxStyle = {
-    fill: 'rgba(59, 130, 246, 0.1)',
-    stroke: '#3b82f6',
-    strokeWidth: 6,
-    cornerColor: '#facc15',
-    cornerStrokeColor: '#000000',
-    cornerSize: 15,
+    fill: 'rgba(59, 130, 246, 0.1)', // Light blue tint
+    stroke: '#3b82f6',              // Blue border
+    strokeWidth: 6,                 // INCREASED THICKNESS
+    cornerColor: '#facc15',         // YELLOW POINTS
+    cornerStrokeColor: '#000000',   // Black outline for points
+    cornerSize: 15,                 // Size of the points
     transparentCorners: false,
     data: {type: 'crop'}
   };
@@ -118,7 +119,7 @@ function App() {
   const handleZoomChange = (newZoom) => {
     const limited = Math.min(Math.max(0.001, newZoom), 4);
     setZoom(limited);
-    if (canvas && canvas.backgroundImage) {
+    if (canvas) {
       canvas.setZoom(limited);
       canvas.setWidth(canvas.backgroundImage.width * limited);
       canvas.setHeight(canvas.backgroundImage.height * limited);
@@ -129,20 +130,36 @@ function App() {
   const resetZoom = () => {
     const wrapper = document.getElementById('editor-wrapper');
     if (!canvas || !wrapper || !canvas.backgroundImage) return;
+
     const padding = 40;
-    const bestScale = Math.min((wrapper.clientWidth - padding) / canvas.backgroundImage.width, (wrapper.clientHeight - padding) / canvas.backgroundImage.height);
+    const availableWidth = wrapper.clientWidth - padding;
+    const availableHeight = wrapper.clientHeight - padding;
+
+    // Calculate scale to fit both width and height
+    const scaleX = availableWidth / canvas.backgroundImage.width;
+    const scaleY = availableHeight / canvas.backgroundImage.height;
+    
+    // Use the smaller scale so the whole image is visible
+    const bestScale = Math.min(scaleX, scaleY);
     handleZoomChange(bestScale);
   };
 
   const updatePreviews = (fCanvas) => {
-    const crops = fCanvas.getObjects('rect').filter(r => r.data?.type === 'crop').sort((a, b) => a.top - b.top);
+    const crops = fCanvas.getObjects('rect')
+      .filter(r => r.data?.type === 'crop')
+      .sort((a, b) => a.top - b.top);
+
+    // Calculate the scale multiplier to get high-res data
     const multiplier = 1 / fCanvas.getZoom();
+
     setPreviews(crops.map(r => fCanvas.toDataURL({ 
         left: r.left * fCanvas.getZoom(), 
         top: r.top * fCanvas.getZoom(), 
         width: r.width * r.scaleX * fCanvas.getZoom(), 
         height: r.height * r.scaleY * fCanvas.getZoom(),
-        format: 'png', quality: 1, multiplier: multiplier 
+        format: 'png',
+        quality: 1,
+        multiplier: multiplier // Pulls from original image quality
     })));
   };
 
@@ -152,7 +169,11 @@ function App() {
     canvas.clear(); setPreviews([]); setCurrentFile(file);
     const reader = new FileReader();
     reader.onload = (f) => fabric.Image.fromURL(f.target.result, (img) => {
-      canvas.setBackgroundImage(img, () => { resetZoom(); runDetection(file); });
+      canvas.setBackgroundImage(img, () => { 
+        // Force the zoom to reset immediately after upload
+        resetZoom(); 
+        runDetection(file); 
+      });
     });
     reader.readAsDataURL(file);
   };
@@ -161,12 +182,11 @@ function App() {
     const formData = new FormData();
     formData.append('file', file || currentFile);
     try {
-      // API Connection pointing to your Render backend
       const res = await axios.post('https://comic-cropper-pro.onrender.com/detect', formData);
       canvas.getObjects('rect').filter(o => o.data?.type === 'crop').forEach(o => canvas.remove(o));
       res.data.panels.forEach(p => canvas.add(new fabric.Rect({ ...p, ...boxStyle })));
       updatePreviews(canvas);
-    } catch (err) { console.error("Detection Error:", err); }
+    } catch (err) { console.error(err); }
   };
 
   return (
@@ -193,33 +213,61 @@ function App() {
         <Routes>
           <Route path="/" element={<Editor canvas={canvas} previews={previews} runDetection={runDetection} resetZoom={resetZoom} handleZoomChange={handleZoomChange} />} />
           <Route path="/about" element={
-            <PageLayout title="About Us">
-              <p style={{marginBottom: '20px', color: '#fff', fontSize: '16px'}}>Premier utility for digital comic creators.</p>
-              <div style={{display: 'flex', flexDirection: 'column', gap: '20px', color: '#aaa'}}>
-                <div><strong style={{color: '#fff', display: 'block'}}>Our Mission:</strong> Slicing long-strip manhwa with ease.</div>
-              </div>
-            </PageLayout>
-          } />
-          <Route path="/privacy" element={<PageLayout title="Privacy Policy"><p>Your privacy is our priority. We do not store images.</p></PageLayout>} />
+  <PageLayout title="About Us">
+    <p style={{marginBottom: '20px', color: '#fff', fontSize: '16px'}}>
+      Welcome to <strong>AutoCropper Pro</strong>, the premier utility for digital comic creators and scanlation teams.
+    </p>
+    <div style={{display: 'flex', flexDirection: 'column', gap: '20px', color: '#aaa'}}>
+      <div>
+        <strong style={{color: '#fff', display: 'block', marginBottom: '5px'}}>Our Mission</strong>
+        We aim to eliminate the tedious manual labor involved in slicing long-strip manhwa and webtoons into individual, high-quality panels for publication and archival.
+      </div>
+      <div>
+        <strong style={{color: '#fff', display: 'block', marginBottom: '5px'}}>Advanced Technology</strong>
+        Our tool utilizes the <strong>Sobel Energy Engine</strong> to analyze visual density, ensuring that artwork is detected accurately while ignoring blank gutters and background noise.
+      </div>
+      <div>
+        <strong style={{color: '#fff', display: 'block', marginBottom: '5px'}}>Professional Quality</strong>
+        By pulling data directly from the source resolution, we provide sharp, high-fidelity crops that are ready for professional content creation.
+      </div>
+    </div>
+  </PageLayout>
+} />
+          <Route path="/privacy" element={<PageLayout title="Privacy Policy"><p>"At AutoCropper Pro, your privacy is our priority. We understand the value of your creative intellectual property. All image processing is handled in real-time within your browser or via secure, transient server-side logic. We do not store your uploaded images on our servers, and we do not collect personal data without your consent. Our tool is designed to be a safe, 'stateless' utility, ensuring that your raw files remain yours and yours alone".</p></PageLayout>} />
           <Route path="/contact" element={
-            <PageLayout title="Contact Us">
-              <p style={{marginBottom: '20px', color: '#fff'}}>Support Email: <a href="mailto:amirsohail4545@gmail.com" style={{color: '#3b82f6'}}>amirsohail4545@gmail.com</a></p>
-            </PageLayout>
-          } />
-          <Route path="/terms" element={
-            <PageLayout title="Terms of Service">
-              <p style={{marginBottom: '20px', color: '#fff'}}>Use for lawful comic archival purposes.</p>
-            </PageLayout>
-          } />
+  <PageLayout title="Contact Us">
+    <p style={{marginBottom: '20px', color: '#fff'}}>
+      Need help or have a feature request? We value user feedback to improve our slicing algorithms.
+    </p>
+    <div style={{display: 'flex', flexDirection: 'column', gap: '15px', color: '#aaa'}}>
+      <div>
+        <strong style={{color: '#fff', display: 'block'}}>Support Email:</strong>
+        <a href="mailto:amirsohail4545@gmail.com" style={{color: '#3b82f6'}}>amirsohail4545@gmail.com</a>
+      </div>
+      <div>
+        <strong style={{color: '#fff', display: 'block'}}>Office Location:</strong>
+        Pakistan
+      </div>
+      <div>
+        <strong style={{color: '#fff', display: 'block'}}>Response Time:</strong>
+        We typically respond to all technical inquiries within 24–48 hours.
+      </div>
+    </div>
+  </PageLayout>
+} />
+	<Route path="/terms" element={
+    <PageLayout title="Terms of Service">
+      <p style={{marginBottom: '20px', color: '#fff'}}>By using AutoCropper Pro, you agree to these terms.</p>
+      <div style={{display: 'flex', flexDirection: 'column', gap: '20px', color: '#aaa'}}>
+        <div><strong style={{color: '#fff', display: 'block'}}>1. Use:</strong> Tool is for lawful comic archival purposes.</div>
+        <div><strong style={{color: '#fff', display: 'block'}}>2. Rights:</strong> You own your original uploaded content.</div>
+      </div>
+    </PageLayout>
+  } />
         </Routes>
 
         <footer style={styles.footer}>
-          <div style={styles.footerLinks}>
-            <Link to="/about" style={styles.footerLink}>About</Link>
-            <Link to="/privacy" style={styles.footerLink}>Privacy</Link>
-            <Link to="/contact" style={styles.footerLink}>Contact</Link>
-            <Link to="/terms" style={styles.footerLink}>Terms</Link>
-          </div>
+          <div style={styles.footerLinks}><Link to="/about" style={styles.footerLink}>About</Link><Link to="/privacy" style={styles.footerLink}>Privacy</Link><Link to="/contact" style={styles.footerLink}>Contact</Link><Link to="/terms" style={styles.footerLink}>Terms</Link></div>
           <p style={styles.copyright}>© 2026 AutoCropper Pro.</p>
         </footer>
       </div>
@@ -232,6 +280,7 @@ const styles = {
   nav: { height: '60px', padding: '0 20px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: '#1a1a1a', borderBottom: '1px solid #333' },
   tools: { display: 'flex', gap: '12px', alignItems:'center' },
   zoomGroup: { display:'flex', gap:'5px', background:'#222', padding:'4px', borderRadius:'6px', border:'1px solid #444' },
+  main: { display: 'flex', flex: 1, overflow: 'hidden' },
   editorContainer: { display:'flex', flexDirection:'column', flex: 1, overflow:'hidden' },
   mainWorkArea: { display: 'flex', flex: 1, overflow: 'hidden' },
   sidebar: { width: '220px', background: '#1a1a1a', borderRight: '1px solid #333', padding: '15px', display: 'flex', flexDirection: 'column', gap:'10px' },
@@ -245,7 +294,7 @@ const styles = {
   infoBox: { background: '#1e3a8a22', padding: '12px', borderRadius: '8px', border: '1px solid #1e3a8a' },
   adBanner: { height: '70px', background: '#0a0a0a', borderBottom: '1px solid #333', display: 'flex', alignItems: 'center', justifyContent: 'center' },
   adPlaceholder: { width: '728px', height: '50px', border: '1px dashed #333', color: '#333', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '10px' },
-  sidebarAd: { marginTop: 'auto', marginBottom: '10px', width:'100%', height:'250px', border:'1px dashed #333', display:'flex', alignItems:'center', justifyContent:'center', fontSize:'10px', color:'#333' }, // Fixed margintop typo
+  sidebarAd: { margintop: 'auto', marginBottom: '10px', width:'100%', height:'250px', border:'1px dashed #333', display:'flex', alignItems:'center', justifyContent:'center', fontSize:'10px', color:'#333' },
   footer: { height: '40px', background: '#1a1a1a', display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 20px', borderTop: '1px solid #333', fontSize:'10px' },
   footerLinks: { display: 'flex', gap: '15px' },
   footerLink: { color: '#666', textDecoration: 'none' },
