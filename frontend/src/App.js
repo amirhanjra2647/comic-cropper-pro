@@ -135,16 +135,33 @@ function App() {
   };
 
   const updatePreviews = (fCanvas) => {
-    const crops = fCanvas.getObjects('rect').filter(r => r.data?.type === 'crop').sort((a, b) => a.top - b.top);
-    const multiplier = 1 / fCanvas.getZoom();
-    setPreviews(crops.map(r => fCanvas.toDataURL({ 
-        left: r.left * fCanvas.getZoom(), 
-        top: r.top * fCanvas.getZoom(), 
-        width: r.width * r.scaleX * fCanvas.getZoom(), 
-        height: r.height * r.scaleY * fCanvas.getZoom(),
-        format: 'png', quality: 1, multiplier: multiplier 
-    })));
-  };
+  const crops = fCanvas.getObjects('rect')
+    .filter(r => r.data?.type === 'crop')
+    .sort((a, b) => a.top - b.top);
+
+  const multiplier = 1 / fCanvas.getZoom();
+
+  // 1. Hide the blue boxes before capturing
+  crops.forEach(r => { r.opacity = 0; });
+  fCanvas.renderAll();
+
+  // 2. Capture the clean images
+  const newPreviews = crops.map(r => fCanvas.toDataURL({ 
+      left: r.left * fCanvas.getZoom(), 
+      top: r.top * fCanvas.getZoom(), 
+      width: r.width * r.scaleX * fCanvas.getZoom(), 
+      height: r.height * r.scaleY * fCanvas.getZoom(),
+      format: 'png',
+      quality: 1,
+      multiplier: multiplier 
+  }));
+
+  // 3. Show the blue boxes again for the editor
+  crops.forEach(r => { r.opacity = 1; });
+  fCanvas.renderAll();
+
+  setPreviews(newPreviews);
+};
 
   const handleUpload = (e) => {
     const file = e.target.files[0];

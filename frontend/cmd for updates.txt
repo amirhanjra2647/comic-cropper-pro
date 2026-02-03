@@ -1,0 +1,1 @@
+Terminal mein git add ., git commit -m "Final cleanup", aur git push origin main karen.
