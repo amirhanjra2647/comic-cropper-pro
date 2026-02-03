@@ -182,7 +182,7 @@ function App() {
     const formData = new FormData();
     formData.append('file', file || currentFile);
     try {
-      const res = await axios.post('http://localhost:8000/detect', formData);
+      const res = await axios.post('https://comic-cropper-pro.onrender.com', formData);
       canvas.getObjects('rect').filter(o => o.data?.type === 'crop').forEach(o => canvas.remove(o));
       res.data.panels.forEach(p => canvas.add(new fabric.Rect({ ...p, ...boxStyle })));
       updatePreviews(canvas);
