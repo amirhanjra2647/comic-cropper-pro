@@ -210,24 +210,83 @@ function App() {
         <Routes>
           <Route path="/" element={<Editor canvas={canvas} previews={previews} runDetection={runDetection} resetZoom={resetZoom} handleZoomChange={handleZoomChange} />} />
           <Route path="/about" element={
-            <PageLayout title="About Us">
-              <p style={{marginBottom: '20px', color: '#fff', fontSize: '16px'}}>Premier utility for digital comic creators.</p>
-              <div style={{display: 'flex', flexDirection: 'column', gap: '20px', color: '#aaa'}}>
-                <div><strong style={{color: '#fff', display: 'block'}}>Our Mission:</strong> Slicing long-strip manhwa with ease.</div>
-              </div>
-            </PageLayout>
-          } />
-          <Route path="/privacy" element={<PageLayout title="Privacy Policy"><p>Your privacy is our priority. We do not store images.</p></PageLayout>} />
+  <PageLayout title="About Us">
+    <p style={{marginBottom: '20px', color: '#fff', fontSize: '16px'}}>
+      Welcome to <strong>AutoCropper Pro</strong>, the premier <strong>AI-powered Manhwa slicing tool</strong> engineered for digital comic creators and scanlation teams.
+    </p>
+    <div style={{display: 'flex', flexDirection: 'column', gap: '20px', color: '#aaa'}}>
+      <div>
+        <strong style={{color: '#fff', display: 'block', marginBottom: '5px'}}>Automated Webtoon Slicing</strong>
+        Our platform utilizes advanced <strong>image processing algorithms</strong> to eliminate the manual labor of cropping long-strip comics into individual, publication-ready panels.
+      </div>
+      <div>
+        <strong style={{color: '#fff', display: 'block', marginBottom: '5px'}}>Sobel Energy Detection Engine</strong>
+        Using our proprietary <strong>Sobel Energy Engine</strong>, the tool performs a deep visual scan to detect art boundaries with high precision, ensuring clean gutters and zero background noise.
+      </div>
+      <div>
+        <strong style={{color: '#fff', display: 'block', marginBottom: '5px'}}>High-Fidelity Image Extraction</strong>
+        We pull data directly from the source resolution, providing <strong>high-fidelity panel extraction</strong> that maintains sharp quality for professional content archival and distribution.
+      </div>
+    </div>
+  </PageLayout>
+} />
+          <Route path="/privacy" element={
+  <PageLayout title="Privacy Policy">
+    <div style={{display: 'flex', flexDirection: 'column', gap: '20px', color: '#aaa'}}>
+      <p>
+        At <strong>AutoCropper Pro</strong>, we prioritize <strong>User Data Protection</strong> and intellectual property security. Our tool is built on a "Privacy-First" architecture.
+      </p>
+      <div>
+        <strong style={{color: '#fff', display: 'block'}}>No-Logs Data Policy</strong>
+        We do not store, monitor, or collect your uploaded images. All <strong>secure image processing</strong> is transient, meaning your files are deleted from the server memory immediately after detection.
+      </div>
+      <div>
+        <strong style={{color: '#fff', display: 'block'}}>Browser-Side Integrity</strong>
+        Most of the heavy lifting and preview generation happens directly in your browser, ensuring your <strong>raw creative assets</strong> never stay on external servers longer than necessary.
+      </div>
+    </div>
+  </PageLayout>
+} />
           <Route path="/contact" element={
-            <PageLayout title="Contact Us">
-              <p style={{marginBottom: '20px', color: '#fff'}}>Support Email: <a href="mailto:amirsohail4545@gmail.com" style={{color: '#3b82f6'}}>amirsohail4545@gmail.com</a></p>
-            </PageLayout>
-          } />
+  <PageLayout title="Contact Us">
+    <p style={{marginBottom: '20px', color: '#fff'}}>
+      Need <strong>Technical Support</strong> or have a feature request for our <strong>slicing automation engine</strong>?
+    </p>
+    <div style={{display: 'flex', flexDirection: 'column', gap: '15px', color: '#aaa'}}>
+      <div>
+        <strong style={{color: '#fff', display: 'block'}}>Developer Support Email:</strong>
+        <a href="mailto:amirsohail4545@gmail.com" style={{color: '#3b82f6', textDecoration: 'none'}}>amirsohail4545@gmail.com</a>
+      </div>
+      <div>
+        <strong style={{color: '#fff', display: 'block'}}>Global Operations:</strong>
+        Headquartered in <strong>Pakistan</strong>, providing digital utilities to a global creator community.
+      </div>
+      <div>
+        <strong style={{color: '#fff', display: 'block'}}>Response SLA:</strong>
+        We aim to respond to all <strong>API integration</strong> and user feedback inquiries within 24 to 48 hours.
+      </div>
+    </div>
+  </PageLayout>
+} />
           <Route path="/terms" element={
-            <PageLayout title="Terms of Service">
-              <p style={{marginBottom: '20px', color: '#fff'}}>Use for lawful comic archival purposes.</p>
-            </PageLayout>
-          } />
+  <PageLayout title="Terms of Service">
+    <p style={{marginBottom: '20px', color: '#fff'}}>By accessing this <strong>Image Processing Utility</strong>, you agree to our Service Terms.</p>
+    <div style={{display: 'flex', flexDirection: 'column', gap: '20px', color: '#aaa'}}>
+      <div>
+        <strong style={{color: '#fff', display: 'block'}}>1. Intellectual Property Ownership</strong>
+        Users retain full copyright and ownership of any content processed through <strong>AutoCropper Pro</strong>. We claim no rights over your artwork.
+      </div>
+      <div>
+        <strong style={{color: '#fff', display: 'block'}}>2. Usage Limitations</strong>
+        This tool is provided for <strong>lawful comic archival</strong> and creative purposes. Any misuse of the automation engine for unauthorized data scraping is prohibited.
+      </div>
+      <div>
+        <strong style={{color: '#fff', display: 'block'}}>3. Fair Use Compliance</strong>
+        We encourage users to follow international <strong>Fair Use</strong> guidelines while utilizing our automated cropping tools for educational or archival projects.
+      </div>
+    </div>
+  </PageLayout>
+} />
         </Routes>
 
         <footer style={styles.footer}>
