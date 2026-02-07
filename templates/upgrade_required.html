@@ -1,0 +1,30 @@
+{% extends 'base.html' %}
+
+{% block title %}Pro Required - ToolBox Pro{% endblock %}
+
+{% block content %}
+<div class="container" style="max-width: 600px; margin-top: 4rem;">
+    <div class="card card-glass fade-in text-center">
+        <h2 style="margin-bottom: 1rem;">🔒 Pro Feature</h2>
+        <p style="color: var(--text-muted); margin-bottom: 2rem;">
+            This feature requires a Pro account. Sign up now to unlock all features!
+        </p>
+
+        <div
+            style="background: rgba(245, 158, 11, 0.1); border: 1px solid var(--accent); border-radius: 0.5rem; padding: 1.5rem; margin-bottom: 2rem;">
+            <h3 style="color: var(--accent); margin-bottom: 1rem;">⭐ Pro Features</h3>
+            <ul style="text-align: left; list-style: none; padding: 0;">
+                <li style="margin-bottom: 0.5rem;">✅ Batch image processing</li>
+                <li style="margin-bottom: 0.5rem;">✅ Multiple images on same canvas</li>
+                <li style="margin-bottom: 0.5rem;">✅ Aspect ratio presets</li>
+                <li style="margin-bottom: 0.5rem;">✅ ZIP export</li>
+                <li style="margin-bottom: 0.5rem;">✅ Save history</li>
+            </ul>
+        </div>
+
+        <a href="/auth/register/" class="btn btn-pro" style="padding: 1rem 2rem; font-size: 1.1rem;">
+            Get Pro Access FREE
+        </a>
+    </div>
+</div>
+{% endblock %}

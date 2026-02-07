@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}ToolBox Pro{% endblock %}</title>
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- CSS -->
+    <link rel="stylesheet" href="/static/css/main.css">
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+    <!-- Navbar -->
+    <nav class="navbar">
+        <a href="/" class="navbar-brand">🛠️ ToolBox Pro</a>
+        
+        <ul class="navbar-nav">
+            {% for tool in available_tools %}
+            <li>
+                <a href="/{{ tool.slug }}/" class="nav-link">
+                    {{ tool.icon }} {{ tool.name }}
+                </a>
+            </li>
+            {% endfor %}
+            
+            {% if user.is_authenticated %}
+                <li>
+                    <span class="nav-link">
+                        👤 {{ user.username }}
+                        {% if user.is_pro %}<span style="color: #f59e0b;">⭐ PRO</span>{% endif %}
+                    </span>
+                </li>
+                <li>
+                    <a href="/auth/logout/" class="btn btn-outline" style="padding: 0.5rem 1rem;">Logout</a>
+                </li>
+            {% else %}
+                <li>
+                    <a href="/auth/login/" class="btn btn-primary" style="padding: 0.5rem 1rem;">Login</a>
+                </li>
+                <li>
+                    <a href="/auth/register/" class="btn btn-gradient" style="padding: 0.5rem 1rem;">Sign Up</a>
+                </li>
+            {% endif %}
+        </ul>
+    </nav>
+
+    <!-- Messages -->
+    {% if messages %}
+    <div class="container" style="margin-top: 1rem;">
+        {% for message in messages %}
+        <div class="alert alert-{{ message.tags }}">
+            {{ message }}
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <!-- Main Content -->
+    <main>
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <p>&copy; 2026 ToolBox Pro. All rights reserved.</p>
+    </footer>
+
+    <!-- JavaScript -->
+    <script src="/static/js/main.js"></script>
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

@@ -1,0 +1,33 @@
+{% extends 'base.html' %}
+
+{% block title %}Welcome - ToolBox Pro{% endblock %}
+
+{% block content %}
+<div class="container text-center" style="margin-top: 4rem;">
+    <div class="fade-in">
+        <h1
+            style="font-size: 3rem; margin-bottom: 1rem; background: var(--gradient-3); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">
+            🛠️ ToolBox Pro
+        </h1>
+        <p style="font-size: 1.2rem; color: var(--text-muted); margin-bottom: 3rem;">
+            Professional tools for image cropping and Excel editing
+        </p>
+
+        <div class="grid grid-2" style="max-width: 900px; margin: 0 auto;">
+            {% for tool in available_tools %}
+            <a href="/{{ tool.slug }}/" class="card" style="text-decoration: none; color: inherit;">
+                <div style="font-size: 3rem; margin-bottom: 1rem;">{{ tool.icon }}</div>
+                <h3 style="margin-bottom: 0.5rem;">{{ tool.name }}</h3>
+                <p style="color: var(--text-muted);">{{ tool.description }}</p>
+                {% if tool.requires_pro %}
+                <span
+                    style="display: inline-block; margin-top: 1rem; padding: 0.25rem 0.75rem; background: rgba(245, 158, 11, 0.2); color: var(--accent); border-radius: 1rem; font-size: 0.85rem;">
+                    ⭐ PRO
+                </span>
+                {% endif %}
+            </a>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endblock %}
